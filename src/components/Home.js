@@ -11,12 +11,16 @@ function Home() {
 
     socket.on("connect", () => {
       console.log("Connected to socket server");
+      if (user.photo) {
+        console.log(user.photo);
+        socket.emit("userPhoto", user.photo);
+      }
     });
 
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [user.photo]);
 
   if (!user.nickname || !user.photo) {
     return <Navigate to="/login" />;

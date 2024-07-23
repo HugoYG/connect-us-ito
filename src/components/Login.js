@@ -1,24 +1,28 @@
-import React, { useState } from "react";
-import { Card, Input, Button, Typography } from "@material-tailwind/react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
+import { Card, Typography, Input, Button } from "@material-tailwind/react";
 
 function Login() {
   const [nickname, setNickname] = useState("");
-  //const [photo, setPhoto] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
-
+  const [photo, setPhoto] = useState(null);
+  const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setUser({ nickname, photo });
     navigate("/home");
   };
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const previewURL = URL.createObjectURL(file);
-      setPhotoPreview(previewURL);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhoto(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -57,10 +61,10 @@ function Login() {
             />
           </div>
 
-          {photoPreview && (
+          {photo && (
             <div className="mt-4 flex justify-center">
               <img
-                src={photoPreview}
+                src={photo}
                 alt="profile"
                 className="w-24 h-24 rounded-full"
               />
