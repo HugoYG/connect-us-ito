@@ -1,4 +1,3 @@
-/* src/components/Home.css */
 .container {
   display: flex;
   flex-direction: column;
@@ -8,9 +7,18 @@
 }
 
 .welcome {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  width: 100%;
   margin-bottom: 20px;
 }
+
+.welcome h1 {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 
 .profile-img {
   width: 96px;

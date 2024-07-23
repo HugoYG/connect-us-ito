@@ -12,8 +12,18 @@ function Home() {
   const { user, setUser } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
 
+  //TODO: test
+
   const [stream, setStream] = useState();
+  const [receivingCall, setReceivingCall] = useState(false);
+  const [caller, setCaller] = useState("");
+  const [callerSignal, setCallerSignal] = useState();
+  const [callAccepted, setCallAccepted] = useState(false);
+  const [idToCall, setIdToCall] = useState("");
+  const [callEnded, setCallEnded] = useState(false);
   const myVideo = useRef();
+  //const userVideo = useRef();
+  //const connectionRef = useRef();
 
   useEffect(() => {
     const socket = io("http://localhost:5000");
@@ -62,11 +72,14 @@ function Home() {
 
   return (
     <RippleBackground>
-      <div className="container">
-        <div className="welcome">
-          <SidebarWithBurgerMenu />
-          <Typography variant="h1">Welcome, {user.nickname}!</Typography>
-        </div>
+      <SidebarWithBurgerMenu />
+      <div>
+        <Typography variant="h1">Welcome, {user.nickname}!</Typography>
+        <img
+          src={user.photo}
+          alt="profile"
+          className="w-24 h-24 rounded-full"
+        />
 
         <div className="video-container">
           <div className="video">
@@ -83,29 +96,29 @@ function Home() {
           </div>
         </div>
 
-        <Card className="card-container">
+        <Card className="w-96">
           <CardBody>
-            <div className="card-title">
-              <Typography variant="h5" color="blue-gray">
+            <div className="mb-4 flex items-center justify-between">
+              <Typography variant="h5" color="blue-gray" className="">
                 Online Users
               </Typography>
             </div>
-            <div className="user-list">
+            <div className="divide-y divide-gray-200">
               {users.map((user, index) => (
-                <div key={index} className="user-item">
-                  <div className="user-info">
-                    <Avatar
-                      size="sm"
-                      src={user.photo}
-                      alt={user.name}
-                      className="user-avatar"
-                    />
-                    <Typography color="blue-gray" className="user-name">
-                      {user.name}
-                    </Typography>
+                <div
+                  key={index}
+                  className="flex items-center justify-between pb-3 pt-3 last:pb-0"
+                >
+                  <div className="flex items-center gap-x-3">
+                    <Avatar size="sm" src={user.photo} alt={user.name} />
+                    <div>
+                      <Typography color="blue-gray" variant="h6">
+                        {user.name}
+                      </Typography>
+                    </div>
                   </div>
-                  <Typography color="blue-gray" className="user-id">
-                    {user.id}
+                  <Typography color="blue-gray" variant="h6">
+                    ${user.id}
                   </Typography>
                 </div>
               ))}

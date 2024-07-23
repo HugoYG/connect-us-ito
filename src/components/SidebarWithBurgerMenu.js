@@ -46,13 +46,19 @@ export function SidebarWithBurgerMenu() {
 
   return (
     <>
-      <IconButton variant="text" size="lg" onClick={openDrawer}>
+      <IconButton
+        className="text-black"
+        variant="text"
+        size="lg"
+        onClick={openDrawer}
+      >
         {isDrawerOpen ? (
           <XMarkIcon className="h-8 w-8 stroke-2" />
         ) : (
           <Bars3Icon className="h-8 w-8 stroke-2" />
         )}
       </IconButton>
+
       <Drawer open={isDrawerOpen} onClose={closeDrawer}>
         <Card
           color="transparent"
