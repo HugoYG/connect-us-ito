@@ -31,7 +31,10 @@ function Login() {
         <Typography color="gray" className="mt-1 font-normal">
           Welcome to start Connect Us by Focus.
         </Typography>
-        <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
+        <form
+          className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96"
+          onSubmit={handleSubmit}
+        >
           <div className="mb-1 flex flex-col gap-6">
             <Input
               size="lg"
@@ -63,7 +66,7 @@ function Login() {
               />
             </div>
           )}
-          <Button className="mt-6" fullWidth>
+          <Button className="mt-6" fullWidth type="submit">
             Start chatting
           </Button>
         </form>
