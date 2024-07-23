@@ -11,7 +11,7 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setUser({ nickname, photo });
+    setUser({ nickname, photo, id: null });
     navigate("/home");
   };
 
