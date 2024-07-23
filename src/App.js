@@ -1,11 +1,22 @@
-import "./App.css";
-import { Button } from "@material-tailwind/react";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Login from "./components/Login";
+import Home from "./components/Home";
 
 function App() {
   return (
-    <div className="App">
-      <Button>Button</Button>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/home" element={<Home />} />
+      </Routes>
+    </Router>
   );
 }
 
