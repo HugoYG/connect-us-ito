@@ -4,17 +4,24 @@ import { Navigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 
 function Home() {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
 
   useEffect(() => {
     const socket = io("http://localhost:5000");
 
     socket.on("connect", () => {
       console.log("Connected to socket server");
-      if (user.photo) {
-        console.log(user.photo);
-        socket.emit("userPhoto", user.photo);
-      }
+      socket.on("me", (id) => {
+        console.log("My ID:", id);
+        setUser(id);
+      });
+
+      /* if (user.photo) {
+        socket.emit("new-user", {
+          nickname: user.nickname,
+          photo: user.photo,
+        });
+      } */
     });
 
     return () => {
