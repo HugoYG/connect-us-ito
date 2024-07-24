@@ -42,7 +42,6 @@ function Home() {
       });
 
     socket.on("connect", () => {
-      console.log("Connected to socket server");
       socket.emit("new-user", {
         id: socket.id,
         name: user.nickname,
@@ -51,7 +50,6 @@ function Home() {
     });
 
     socket.on("me", (id) => {
-      console.log("My ID test:", id);
       setUser({
         ...user,
         id,
@@ -60,7 +58,6 @@ function Home() {
 
     socket.on("users-list", (users) => {
       const filteredUsers = users.filter((u) => u.id !== socket.id);
-      console.log("Users list!:", users);
       setUsers(filteredUsers);
     });
 
