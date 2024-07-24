@@ -15,7 +15,7 @@ import { useSocket } from "../context/SocketContext";
 export function CallComponent({ currentCall, isVideo, userImage }) {
   const { user } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
-  const [stream, setStream] = useState();
+  const [stream, setStream] = useState(null);
   const [callAccepted, setCallAccepted] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
   const [isCalling, setIsCalling] = useState(false);
@@ -73,20 +73,18 @@ export function CallComponent({ currentCall, isVideo, userImage }) {
       trickle: false,
       stream: stream,
     });
+
     peer.on("signal", (data) => {
       socket.emit("answer-call", { signal: data, to: callData.from });
     });
+
     peer.on("stream", (stream) => {
-      console.log("stream", stream);
-      console.log("userVideo", userVideo);
-      console.log("userVideo.current", userVideo.current);
       if (userVideo.current) {
         userVideo.current.srcObject = stream;
       }
     });
 
     peer.signal(callData.signal);
-    connectionRef.current = peer;
     setCallAccepted(true);
   };
 
@@ -148,7 +146,7 @@ export function CallComponent({ currentCall, isVideo, userImage }) {
               )}
             </div>
             <div className="video">
-              {callAccepted == true ? (
+              {callAccepted ? (
                 <video
                   playsInline
                   ref={userVideo}

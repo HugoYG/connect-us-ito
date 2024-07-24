@@ -20,9 +20,6 @@ export function ChatComponent({ currentChat }) {
   useEffect(() => {
     if (socket) {
       socket.on("receive-private-message", (message) => {
-        console.log("Message received:", message.from);
-        console.log("Message received:", user?.id);
-
         if (message.from !== user?.id) {
           setMessages((prevMessages) => [...prevMessages, message]);
         }
