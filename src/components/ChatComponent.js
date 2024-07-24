@@ -8,41 +8,41 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import AuthContext from "../context/AuthContext";
-import { io } from "socket.io-client";
+import { useSocket } from "../context/SocketContext";
 
 export function ChatComponent({ currentChat }) {
   const { user } = useContext(AuthContext);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const socket = useRef(null);
+  const socket = useSocket();
 
   useEffect(() => {
-    socket.current = io("http://localhost:5000");
+    if (socket) {
+      socket.on("receive-private-message", (message) => {
+        console.log("Message received:", message.from);
+        console.log("Message received:", user?.id);
 
-    socket.current.on("receive-private-message", (message) => {
-      console.log("Message received:", message.from);
-      console.log("Message received:", user?.id);
+        if (message.from !== user?.id) {
+          setMessages((prevMessages) => [...prevMessages, message]);
+        }
+      });
 
-      if (message.from !== user?.id) {
-        setMessages((prevMessages) => [...prevMessages, message]);
-      }
-    });
-
-    return () => {
-      socket.current.disconnect();
-    };
-  }, [user]);
+      return () => {
+        socket.off("receive-private-message");
+      };
+    }
+  }, [user, socket]);
 
   useEffect(() => {
-    if (currentChat) {
+    if (currentChat && socket) {
       setIsOpen(true);
-      socket.current.emit("join-private-room", {
+      socket.emit("join-private-room", {
         from: user.id,
         to: currentChat.id,
       });
     }
-  }, [currentChat]);
+  }, [currentChat, socket]);
 
   const handleSendMessage = () => {
     if (message.trim() === "") return;
@@ -51,7 +51,7 @@ export function ChatComponent({ currentChat }) {
       to: currentChat.id,
       content: message,
     };
-    socket.current.emit("send-private-message", messageData);
+    socket.emit("send-private-message", messageData);
     setMessages((prevMessages) => [...prevMessages, messageData]);
     setMessage("");
   };

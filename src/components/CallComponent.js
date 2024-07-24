@@ -5,26 +5,28 @@ import {
   DialogHeader,
   DialogBody,
   DialogFooter,
+  Typography,
 } from "@material-tailwind/react";
 import AuthContext from "../context/AuthContext";
-import { io } from "socket.io-client";
 import Peer from "simple-peer";
+import { useSocket } from "../context/SocketContext";
 
-export function CallComponent({ currentCall, isVideo }) {
+export function CallComponent({ currentCall, isVideo, incomingCallData }) {
   const { user } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
   const [stream, setStream] = useState();
   const [callAccepted, setCallAccepted] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
+  const [isCalling, setIsCalling] = useState(false);
   const myVideo = useRef();
   const userVideo = useRef();
   const connectionRef = useRef();
-  const socket = useRef(null);
+  const socket = useSocket();
+
+  const [callData, setCallData] = useState(null);
 
   useEffect(() => {
-    if (user?.id) {
-      socket.current = io("http://localhost:5000");
-
+    if (user?.id && socket) {
       navigator.mediaDevices
         .getUserMedia({ video: isVideo, audio: true })
         .then((stream) => {
@@ -34,23 +36,55 @@ export function CallComponent({ currentCall, isVideo }) {
           }
         });
 
-      socket.current.on("receive-call", (callData) => {
-        console.log("Call received:", callData.from);
-        console.log("Call received by:", user?.id);
+      socket.on("call-user", (callData) => {
+        setCallData(callData);
+        setIsOpen(true);
+      });
+
+      socket.on("call-accepted", (signal) => {
+        setCallAccepted(true);
+        if (connectionRef.current) {
+          connectionRef.current.signal(signal);
+        }
       });
 
       return () => {
-        socket.current.disconnect();
+        socket.off("call-user");
+        socket.off("call-accepted");
       };
     }
-  }, [user, isVideo]);
+  }, [user, isVideo, socket]);
 
   useEffect(() => {
     if (currentCall) {
       setIsOpen(true);
-      callUser(currentCall.id);
+      if (!callData) {
+        callUser(currentCall.id);
+      } else {
+        handleAcceptCall();
+      }
     }
-  }, [currentCall]);
+  }, [currentCall, callData]);
+
+  const handleAcceptCall = () => {
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+      stream: stream,
+    });
+    peer.on("signal", (data) => {
+      socket.emit("answer-call", { signal: data, to: callData.from });
+    });
+    peer.on("stream", (stream) => {
+      if (userVideo.current) {
+        userVideo.current.srcObject = stream;
+      }
+    });
+
+    peer.signal(callData.signal);
+    connectionRef.current = peer;
+    setCallAccepted(true);
+  };
 
   const callUser = (id) => {
     const peer = new Peer({
@@ -59,12 +93,15 @@ export function CallComponent({ currentCall, isVideo }) {
       stream: stream,
     });
 
+    setIsCalling(true);
+
     peer.on("signal", (data) => {
-      socket.current.emit("call-user", {
+      socket.emit("call-user", {
         userToCall: id,
         signalData: data,
         from: user?.id,
         name: user?.name,
+        type: isVideo ? "video" : "audio",
       });
     });
 
@@ -74,24 +111,25 @@ export function CallComponent({ currentCall, isVideo }) {
       }
     });
 
-    socket.current.on("callAccepted", (signal) => {
-      setCallAccepted(true);
-      peer.signal(signal);
-    });
-
     connectionRef.current = peer;
   };
 
   const handleClose = () => {
-    setCallEnded(true);
-    connectionRef.current.destroy();
-    setIsOpen(false);
+    try {
+      setCallEnded(true);
+      if (connectionRef.current) {
+      }
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error in handleClose:", error);
+    }
   };
 
   return (
     <Dialog open={isOpen} size="xxl" handler={handleClose}>
       <DialogHeader>
-        {isVideo ? "Video Call with" : "Audio Call with"} {currentCall?.name}
+        {isVideo ? "Video Call with" : "Audio Call with"}{" "}
+        {currentCall?.name || callData?.name}
       </DialogHeader>
       <DialogBody>
         <div className="call-content">
@@ -115,6 +153,8 @@ export function CallComponent({ currentCall, isVideo }) {
                   autoPlay
                   style={{ width: "300px" }}
                 />
+              ) : isCalling ? (
+                <Typography variant="h6">Calling...</Typography>
               ) : null}
             </div>
           </div>
