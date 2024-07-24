@@ -33,8 +33,7 @@
 }
 
 .card-container {
-  width: 100%;
-  max-width: 400px;
+  width: 900px;
 }
 
 .card-title {
@@ -54,14 +53,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 0;
+  padding: 8px 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  cursor: pointer;
 }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.user-item:hover {
+  transform: translateY(-2px); 
+  background-color: #f0f4f8; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
 }
+
+
 
 .user-avatar {
   width: 32px;
@@ -71,8 +74,9 @@
 
 .user-name {
   font-weight: 600;
+  max-width: 150px; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.user-id {
-  color: #6b7280;
-}
