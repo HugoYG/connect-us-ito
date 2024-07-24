@@ -6,12 +6,13 @@ import {
   DialogBody,
   DialogFooter,
   Typography,
+  Avatar,
 } from "@material-tailwind/react";
 import AuthContext from "../context/AuthContext";
 import Peer from "simple-peer";
 import { useSocket } from "../context/SocketContext";
 
-export function CallComponent({ currentCall, isVideo, incomingCallData }) {
+export function CallComponent({ currentCall, isVideo, userImage }) {
   const { user } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
   const [stream, setStream] = useState();
@@ -76,6 +77,9 @@ export function CallComponent({ currentCall, isVideo, incomingCallData }) {
       socket.emit("answer-call", { signal: data, to: callData.from });
     });
     peer.on("stream", (stream) => {
+      console.log("stream", stream);
+      console.log("userVideo", userVideo);
+      console.log("userVideo.current", userVideo.current);
       if (userVideo.current) {
         userVideo.current.srcObject = stream;
       }
@@ -102,6 +106,7 @@ export function CallComponent({ currentCall, isVideo, incomingCallData }) {
         from: user?.id,
         name: user?.name,
         type: isVideo ? "video" : "audio",
+        nickname: user?.nickname,
       });
     });
 
@@ -126,7 +131,7 @@ export function CallComponent({ currentCall, isVideo, incomingCallData }) {
     <Dialog open={isOpen} size="xxl" handler={handleClose}>
       <DialogHeader>
         {isVideo ? "Video Call with" : "Audio Call with"}{" "}
-        {currentCall?.name || callData?.name}
+        {currentCall?.name || callData?.nickname}
       </DialogHeader>
       <DialogBody>
         <div className="call-content">
@@ -143,7 +148,7 @@ export function CallComponent({ currentCall, isVideo, incomingCallData }) {
               )}
             </div>
             <div className="video">
-              {callAccepted && !callEnded ? (
+              {callAccepted == true ? (
                 <video
                   playsInline
                   ref={userVideo}
@@ -152,6 +157,8 @@ export function CallComponent({ currentCall, isVideo, incomingCallData }) {
                 />
               ) : isCalling ? (
                 <Typography variant="h6">Calling...</Typography>
+              ) : !isVideo && userImage ? (
+                <Avatar src={userImage} alt="User" size="xxl" />
               ) : null}
             </div>
           </div>

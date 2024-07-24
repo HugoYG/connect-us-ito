@@ -78,7 +78,11 @@ function Home() {
   };
 
   const handleAcceptCall = () => {
-    setCurrentCall({ id: incomingCallData.from, name: "Unknown Caller" });
+    setCurrentCall({
+      id: incomingCallData.from,
+      name: incomingCallData.nickname,
+      photo: incomingCallData.photo,
+    });
     setOpenDialog(false);
   };
 
@@ -144,13 +148,15 @@ function Home() {
             currentCall={currentCall}
             isVideo={isVideoCall}
             incomingCallData={incomingCallData}
+            userImage={currentCall?.photo}
           />
         </div>
 
         <Dialog open={openDialog} size="sm" handler={handleCloseDialog}>
           <DialogHeader>Incoming Call</DialogHeader>
           <DialogBody>
-            You have an incoming call. Do you want to accept it?
+            You have an incoming call from {incomingCallData?.nickname}. Do you
+            want to accept it?
           </DialogBody>
           <DialogFooter>
             <Button
