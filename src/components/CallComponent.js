@@ -115,14 +115,11 @@ export function CallComponent({ currentCall, isVideo, incomingCallData }) {
   };
 
   const handleClose = () => {
-    try {
-      setCallEnded(true);
-      if (connectionRef.current) {
-      }
-      setIsOpen(false);
-    } catch (error) {
-      console.error("Error in handleClose:", error);
+    setCallEnded(true);
+    if (connectionRef.current) {
+      connectionRef.current.destroy();
     }
+    setIsOpen(false);
   };
 
   return (

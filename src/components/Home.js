@@ -78,7 +78,7 @@ function Home() {
   };
 
   const handleAcceptCall = () => {
-    setCurrentCall({ id: incomingCallData.from, name: "Unknown Caller" }); // You can enhance this to fetch the user's name based on the ID
+    setCurrentCall({ id: incomingCallData.from, name: "Unknown Caller" });
     setOpenDialog(false);
   };
 
